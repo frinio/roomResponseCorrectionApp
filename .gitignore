@@ -1,0 +1,7 @@
+# Sound files
+*.wav
+*.ogg
+*.mp3
+
+# Matlab workspace variables
+*.mat
