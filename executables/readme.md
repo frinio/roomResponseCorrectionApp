@@ -1,4 +1,4 @@
-## Instalation Guidlines (win64)
+## Instalation Guidelines (win64)
 
 1. Run 'MyAppInstaller_web.exe' to install the application.
 
