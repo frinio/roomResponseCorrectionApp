@@ -10,5 +10,5 @@ This application is the result of my master's thesis. Information about the algo
 
 ### Videos
 
-Here is a link (https://1drv.ms/f/s!AvyDDB3J2gubhRfEl8qPDRB9HH70) to a couple of videos I used in my thesis' presentation. They demonstrate two ways with which the user can place the poles used in the pole-fitting method. Start with the video that shows the 'Perceptual' way and then move to the 'Graphical'.
+Here is a [link](https://1drv.ms/f/s!AvyDDB3J2gubhRfEl8qPDRB9HH70) to a couple of videos I used in my thesis' presentation. They demonstrate two ways with which the user can place the poles used in the pole-fitting method. Start with the video that shows the 'Perceptual' way and then move to the 'Graphical'.
 
