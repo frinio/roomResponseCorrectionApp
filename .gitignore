@@ -2,6 +2,11 @@
 *.wav
 *.ogg
 *.mp3
+# ... but not these
+!_Trgt44l.wav
+!_Trgt44r.wav
+!_Trgt48l.wav
+!_Trgt48r.wav
 
 # Matlab workspace variables
 *.mat
