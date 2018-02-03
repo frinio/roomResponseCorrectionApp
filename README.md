@@ -6,3 +6,9 @@ This application is the result of my master's thesis. Information about the algo
 * Complex Smoothing : [1](http://www.wcl.ece.upatras.gr/audiogroup/publications/pdfs/asme.pdf), [2](https://pdfs.semanticscholar.org/1871/be5212eba2c331b1e51821ba7f6166947840.pdf)
 * Pole-Fitting: [3](http://home.mit.bme.hu/~bank/parfilt/) theory and Matlab code
 * Master's Thesis : [4](http://hdl.handle.net/10889/10578) unfortunately only in Greek
+
+
+### Videos
+
+Here is a [link](https://1drv.ms/f/s!AvyDDB3J2gubhRfEl8qPDRB9HH70) to a couple of videos I used in my thesis' presentation. They demonstrate two ways with which the user can place the poles used in the pole-fitting method. Start with the video that shows the 'Perceptual' way and then move to the 'Graphical'.
+

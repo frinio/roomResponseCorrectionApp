@@ -118,7 +118,8 @@ setappdata(0, 'imp_cheby', []);
 setappdata(0, 'target_imp', []);
 setappdata(0, 'ctarget_imp', []);
 setappdata(0, 'imp', []);
-setappdata(0, 'tbl_data', [10 22050 20]);
+fsDefault = 44100;
+setappdata(0, 'tbl_data', [10 fsDefault/2 20]);
 
 %%%% STEREO GUI Default Setting
 setappdata(0, 'room_ir2', []);
@@ -268,12 +269,12 @@ else
         % Original    
         hold off;
         if handles.left_togglebutton.Value || handles.mono
-            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_or), db(handles.magn_or));
+            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_or, handles.fs), db(handles.magn_or));
             if handles.mono, handles.magn_axes.Title.String = 'Magnitude';
             else handles.magn_axes.Title.String = 'Left Channel: Magnitude'; end
         else
             handles.magn_orR = getappdata(0, 'magn_orR');
-            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_orR), db(handles.magn_orR));
+            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_orR, handles.fs), db(handles.magn_orR));
             handles.magn_axes.Title.String = 'Right Channel: Magnitude';
         end
         magn_or_plot.Visible = handles.vsb_magn_or;
@@ -281,11 +282,11 @@ else
         if handles.correction_flag
             hold on;
             if handles.left_togglebutton.Value || handles.mono
-                magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eq), db(handles.magn_eq), 'r');
+                magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eq, handles.fs), db(handles.magn_eq), 'r');
                 if handles.mono, handles.magn_axes.Title.String = 'Magnitude';
                 else handles.magn_axes.Title.String = 'Left Channel: Magnitude'; end
             else
-                magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eqR), db(handles.magn_eqR), 'r');
+                magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eqR, handles.fs), db(handles.magn_eqR), 'r');
                 handles.magn_axes.Title.String = 'Right Channel: Magnitude';
             end
             magn_eq_plot.Visible = handles.vsb_magn_eq;
@@ -332,12 +333,12 @@ else
         % Original
         hold off;
         if handles.left_togglebutton.Value || handles.mono
-           angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_or), (180/pi)*(handles.angle_or));
+           angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_or, handles.fs), (180/pi)*(handles.angle_or));
            if handles.mono, handles.phase_axes.Title.String = 'Phase';
            else handles.phase_axes.Title.String = 'Left Channel: Phase'; end
         elseif handles.right_togglebutton.Value
             handles.angle_orR = getappdata(0, 'angle_orR');
-            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_orR), (180/pi)*(handles.angle_orR));
+            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_orR, handles.fs), (180/pi)*(handles.angle_orR));
             handles.phase_axes.Title.String = 'Right Channel: Phase';
         end
         angle_or_plot.Visible = handles.vsb_angle_or;
@@ -345,11 +346,11 @@ else
         if handles.correction_flag
             hold on;
             if handles.left_togglebutton.Value || handles.mono
-                angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eq), (180/pi)*(handles.angle_eq), 'r');
+                angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eq, handles.fs), (180/pi)*(handles.angle_eq), 'r');
                 if handles.mono, handles.phase_axes.Title.String = 'Phase';
                 else handles.phase_axes.Title.String = 'Left Channel: Phase'; end
             elseif handles.right_togglebutton.Value
-                angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eqR), (180/pi)*(handles.angle_eqR), 'r');
+                angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eqR, handles.fs), (180/pi)*(handles.angle_eqR), 'r');
                 handles.phase_axes.Title.String = 'Right Channel: Phase';
             end
             angle_eq_plot.Visible = handles.vsb_angle_eq;
@@ -458,12 +459,12 @@ else
         hold off;
         % Original
         if handles.left_togglebutton.Value || handles.mono
-            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_or), handles.gd_or);
+            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_or, handles.fs), handles.gd_or);
             if handles.mono, handles.gd_axes.Title.String = 'Group Delay';
             else handles.gd_axes.Title.String = 'Left Channel: Group Delay'; end
         else
             handles.gd_orR = getappdata(0, 'gd_orR');
-            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_orR), handles.gd_orR);
+            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_orR, handles.fs), handles.gd_orR);
             handles.gd_axes.Title.String = 'Right Channel: Group Delay';
         end
         gd_or_plot.Visible = handles.vsb_gd_or;
@@ -471,11 +472,11 @@ else
         if handles.correction_flag
             hold on;
             if handles.left_togglebutton.Value || handles.mono
-                gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eq), handles.gd_eq, 'r');
+                gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eq, handles.fs), handles.gd_eq, 'r');
                 if handles.mono, handles.gd_axes.Title.String = 'Group Delay';
                 else handles.gd_axes.Title.String = 'Left Channel: Group Delay'; end
             else
-                gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eqR), handles.gd_eqR, 'r');
+                gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eqR, handles.fs), handles.gd_eqR, 'r');
                 handles.gd_axes.Title.String = 'Right Channel: Group Delay';
             end
             
@@ -2069,23 +2070,23 @@ else
         % Original
         hold off;
         if handles.left_togglebutton.Value || handles.mono
-            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_or), db(handles.magn_or));
+            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_or, handles.fs), db(handles.magn_or));
             if handles.mono, handles.magn_axes.Title.String = 'Magnitude';
             else handles.magn_axes.Title.String = 'Left Channel: Magnitude'; end
         else
             handles.magn_orR = getappdata(0, 'magn_orR');
-            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_orR), db(handles.magn_orR));
+            magn_or_plot = semilogx(handles.magn_axes, fset(handles.magn_orR, handles.fs), db(handles.magn_orR));
             handles.magn_axes.Title.String = 'Right Channel: Magnitude';
         end
         magn_or_plot.Visible = handles.vsb_magn_or;   
         % EQ
         hold on;
         if handles.left_togglebutton.Value || handles.mono
-            magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eq), db(handles.magn_eq), 'r');
+            magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eq, handles.fs), db(handles.magn_eq), 'r');
             if handles.mono, handles.magn_axes.Title.String = 'Magnitude';
             else handles.magn_axes.Title.String = 'Left Channel: Magnitude'; end
         else
-            magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eqR), db(handles.magn_eqR), 'r');
+            magn_eq_plot = semilogx(handles.magn_axes, fset(handles.magn_eqR, handles.fs), db(handles.magn_eqR), 'r');
             handles.magn_axes.Title.String = 'Right Channel: Magnitude';
         end
         magn_eq_plot.Visible = handles.vsb_magn_eq;
@@ -2133,23 +2134,23 @@ else
         % Original
         hold off;
         if handles.left_togglebutton.Value || handles.mono
-            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_or), (180/pi)*(handles.angle_or));
+            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_or, handles.fs), (180/pi)*(handles.angle_or));
             if handles.mono, handles.phase_axes.Title.String = 'Phase';
             else handles.phase_axes.Title.String = 'Left Channel: Phase'; end
         else
             handles.angle_orR = getappdata(0, 'angle_orR');
-            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_orR), (180/pi)*(handles.angle_orR));
+            angle_or_plot = semilogx(handles.phase_axes, fset(handles.angle_orR, handles.fs), (180/pi)*(handles.angle_orR));
             handles.phase_axes.Title.String = 'Right Channel: Phase';
         end
         angle_or_plot.Visible = handles.vsb_angle_or;   
         % EQ
         hold on;
         if handles.left_togglebutton.Value || handles.mono
-            angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eq), (180/pi)*(handles.angle_eq), 'r');
+            angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eq, handles.fs), (180/pi)*(handles.angle_eq), 'r');
             if handles.mono, handles.phase_axes.Title.String = 'Phase';
             else handles.phase_axes.Title.String = 'Left Channel: Phase'; end
         else
-            angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eqR), (180/pi)*(handles.angle_eqR), 'r');
+            angle_eq_plot = semilogx(handles.phase_axes, fset(handles.angle_eqR, handles.fs), (180/pi)*(handles.angle_eqR), 'r');
             handles.phase_axes.Title.String = 'Right Channel: Phase';
         end
         angle_eq_plot.Visible = handles.vsb_angle_eq;
@@ -2261,23 +2262,23 @@ else
         hold off;
         % Original
         if handles.left_togglebutton.Value || handles.mono
-            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_or), handles.gd_or);
+            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_or, handles.fs), handles.gd_or);
             if handles.mono, handles.gd_axes.Title.String = 'Group Delay';
             else handles.gd_axes.Title.String = 'Left Channel: Group Delay'; end
         else
             handles.gd_orR = getappdata(0, 'gd_orR');
-            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_orR), handles.gd_orR);
+            gd_or_plot = semilogx(handles.gd_axes, fset(handles.gd_orR, handles.fs), handles.gd_orR);
             handles.gd_axes.Title.String = 'Right Channel: Group Delay';
         end
         gd_or_plot.Visible = handles.vsb_gd_or;
         % EQ
         hold on;
         if handles.left_togglebutton.Value || handles.mono
-            gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eq), handles.gd_eq, 'r');
+            gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eq, handles.fs), handles.gd_eq, 'r');
             if handles.mono, handles.gd_axes.Title.String = 'Group Delay';
             else handles.gd_axes.Title.String = 'Left Channel: Group Delay'; end
         else
-            gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eqR), handles.gd_eqR, 'r');
+            gd_eq_plot = semilogx(handles.gd_axes, fset(handles.gd_eqR, handles.fs), handles.gd_eqR, 'r');
             handles.gd_axes.Title.String = 'Right Channel: Group Delay';
         end
 
