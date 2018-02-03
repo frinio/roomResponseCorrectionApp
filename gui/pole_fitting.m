@@ -133,8 +133,8 @@ handles.room_resp = fft(handles.room_ir);
 handles.dr = 70; % Dynamic Range (dB)
 handles.max_db =  max(db(handles.room_resp));
 handles.min_db = handles.max_db - handles.dr;
-semilogx(handles.graph_axes, fset(handles.room_resp), db(handles.room_resp)); hold on;
-handles.graph_axes.XLim = [10 22050];
+semilogx(handles.graph_axes, fset(handles.room_resp, handles.fs), db(handles.room_resp)); hold on;
+handles.graph_axes.XLim = [10 handles.fs/2];
 handles.graph_axes.YLim = [handles.min_db handles.max_db];
 
 yaxis1 = zeros(1, length(handles.fp)) + 3*handles.min_db/4 +3;
@@ -346,7 +346,7 @@ else
 end
 
 sos = zp2sos(z,p,k);
-f = fset(handles.room_ir);
+f = fset(handles.room_ir, handles.fs);
 handles.imp_cheby = impz(sos, length(f));
 handles.imp_cheby = handles.imp_cheby/max(abs(handles.imp_cheby));
 handles.target = handles.imp_cheby;
@@ -455,7 +455,7 @@ handles = guidata(handles.pole_fitting_figure);
     handles.f3.CloseRequestFcn = {@fig_crf, handles};
 
     handles.ah = axes;
-    semilogx(handles.ah, fset(handles.room_resp), db(handles.room_resp)); hold on;
+    semilogx(handles.ah, fset(handles.room_resp, handles.fs), db(handles.room_resp)); hold on;
     handles.f3.Position= [400 200 550 420];
     set(handles.f3, 'Units', 'normalized','OuterPosition', [0 0 1 1]);
     handles.ah.Position= [0.05 0.12 0.82 0.8150];
@@ -473,7 +473,7 @@ handles = guidata(handles.pole_fitting_figure);
    handles.chbx_eq.Value = handles.val_eq;
    handles.chbx_trgt.Value = handles.val_trgt;
    
-    trgt = semilogx(fset(handles.trgt_fft), db(handles.trgt_fft), 'm', 'Linewidth', 1.05);
+    trgt = semilogx(fset(handles.trgt_fft, handles.fs), db(handles.trgt_fft), 'm', 'Linewidth', 1.05);
     set(trgt, 'tag', 'trgt');
     hold on;
          %%%%% GRAPHICAL POLES %%%%%
@@ -503,11 +503,11 @@ handles = guidata(handles.pole_fitting_figure);
             plot(handles.fp, yaxis, 'ko', 'Linewidth', 0.8); 
             hold on;
             if handles.fp >1      
-                inv = semilogx(fset(handles.inv_graph_fft), db(handles.inv_graph_fft), 'r',...
+                inv = semilogx(fset(handles.inv_graph_fft, handles.fs), db(handles.inv_graph_fft), 'r',...
                     'Linewidth', 1, 'Visible', 'off');
                 set(inv, 'tag', 'inv');
                 hold on;
-                eq = semilogx(fset(handles.eq_graph_fft), db(handles.eq_graph_fft), 'k',...
+                eq = semilogx(fset(handles.eq_graph_fft, handles.fs), db(handles.eq_graph_fft), 'k',...
                     'Linewidth', 1.1, 'Visible', 'off');
                 set(eq, 'tag', 'eq');
                 hold off;
@@ -565,11 +565,11 @@ handles = guidata(handles.pole_fitting_figure);
             hold on;
             semilogx(handles.fp_man, yaxis, 'kx', 'Linewidth', 0.8); 
             hold on;
-            inv = semilogx(fset(handles.inv_man_fft), db(handles.inv_man_fft), 'r',...
+            inv = semilogx(fset(handles.inv_man_fft, handles.fs), db(handles.inv_man_fft), 'r',...
                 'Linewidth', 1, 'Visible', 'off');
             set(inv, 'tag', 'inv');
             hold on;
-            eq = semilogx(fset(handles.eq_man_fft), db(handles.eq_man_fft), 'k',...
+            eq = semilogx(fset(handles.eq_man_fft, handles.fs), db(handles.eq_man_fft), 'k',...
                 'Linewidth', 1.1, 'Visible', 'off');
             set(eq, 'tag', 'eq');
             hold off;
@@ -580,7 +580,7 @@ handles = guidata(handles.pole_fitting_figure);
     set(findobj('tag','eq'), 'Visible', handles.vsb_eq);
     set(findobj('tag','trgt'), 'Visible', handles.vsb_trgt);
     axis tight; lims = axis;
-    xlim([10 22050]); 
+    xlim([10 handles.fs/2]); 
     ylim([-40 lims(4)]);
     xlabel('Frequency (Hz)', 'FontWeight', 'bold');
     ylabel('Magnitude (dB)', 'FontWeight', 'bold');
@@ -632,7 +632,7 @@ if get(handles.graphical_poles_radiobutton,'Value')
                 handles.fp = [handles.fp xcord];
                 handles.fp = sort(handles.fp);
                 if length(handles.fp)>1
-                    handles.p = freqpoles(handles.fp); 
+                    handles.p = freqpoles(handles.fp, handles.fs); 
                     [Binv,Ainv,FIRinv]=parfiltid(handles.minresp_ir, handles.target,handles.p,1); %Parallel filter design
                     handles.inv_imp = parfilt(Binv,Ainv, FIRinv, handles.imp);
                     eq_imp = FFTconv(handles.inv_imp, handles.room_ir);
@@ -644,7 +644,7 @@ if get(handles.graphical_poles_radiobutton,'Value')
                 close(hObject);
                 yaxis = zeros(1, length(handles.fp)) + handles.min_db/2;
                 set(handles.graph_axes, 'NextPlot', 'replacechildren');
-                semilogx(handles.graph_axes, fset(handles.room_resp), db(handles.room_resp));  hold on;
+                semilogx(handles.graph_axes, fset(handles.room_resp, handles.fs), db(handles.room_resp));  hold on;
                 plot(handles.graph_axes, handles.fp, yaxis, 'ko', 'Linewidth', 1); hold off;
                 return;   
             case 'alt'
@@ -653,7 +653,7 @@ if get(handles.graphical_poles_radiobutton,'Value')
                 [val,ind]=min(abs(log(handles.fp)-log(xcord)));
                 handles.fp=[handles.fp(1:ind-1) handles.fp(ind+1:end)];
                 if length(handles.fp)>1
-                    handles.p = freqpoles(handles.fp);
+                    handles.p = freqpoles(handles.fp, handles.fs);
                     [Binv,Ainv,FIRinv]=parfiltid(handles.minresp_ir, handles.target,handles.p,1); %Parallel filter design         
                     handles.inv_imp = parfilt(Binv, Ainv, FIRinv, handles.imp);
                     eq_imp = FFTconv(handles.inv_imp, handles.room_ir);
@@ -783,7 +783,7 @@ if (data(1,1)~=0) && (data(1,2)~=0)
         for i = 1:rows
            handles.fp_man = [handles.fp_man logspace(log10(data(i,1)), log10(data(i,2)), data(i,3))];
         end
-        handles.p_man = freqpoles(handles.fp_man);
+        handles.p_man = freqpoles(handles.fp_man, handles.fs);
         [Binv_man,Ainv_man,FIRinv_man]=parfiltid(handles.minresp_ir, handles.target,handles.p_man,1); %Parallel filter design   
         handles.inv_imp_man = parfilt(Binv_man, Ainv_man, FIRinv_man, handles.imp);
         eq_imp_man = FFTconv(handles.inv_imp_man, handles.room_ir);
@@ -828,8 +828,8 @@ handles = guidata(handles.pole_fitting_figure);
 
 delete(handles.f3);
 hold off;
-semilogx(handles.graph_axes, fset(handles.room_resp), db(handles.room_resp));  hold on;
-handles.graph_axes.XLim = [10 22050];
+semilogx(handles.graph_axes, fset(handles.room_resp, handles.fs), db(handles.room_resp));  hold on;
+handles.graph_axes.XLim = [10 handles.fs/2];
 handles.graph_axes.YLim = [handles.min_db handles.max_db];
 xlabel('Frequency (Hz)', 'FontWeight', 'bold');
 ylabel('Magnitude (dB)', 'FontWeight', 'bold');
@@ -850,42 +850,42 @@ handles = guidata(handles.pole_fitting_figure);
 
 if handles.manual_poles_radiobutton.Value
     hold off;
-    semilogx(handles.ah, fset(handles.room_resp), db(handles.room_resp));  hold on;
+    semilogx(handles.ah, fset(handles.room_resp, handles.fs), db(handles.room_resp));  hold on;
     axis tight; lims = axis;
-    handles.ah.XLim = [10 22050];
+    handles.ah.XLim = [10 handles.fs/2];
     handles.ah.YLim = [-40 lims(4)] ;
     xlabel('Frequency (Hz)', 'FontWeight', 'bold');
     ylabel('Magnitude (dB)', 'FontWeight', 'bold');
     yaxis = zeros(1, length(handles.fp_man)) + 3.5*(-40)/4 ;
     plot(handles.ah, handles.fp_man, yaxis, 'kx', 'Linewidth', 1.2); hold on;
 
-    trgt = semilogx(handles.ah, fset(handles.trgt_fft), db(handles.trgt_fft), 'm--', 'Linewidth', 1.05); hold on;
+    trgt = semilogx(handles.ah, fset(handles.trgt_fft, handles.fs), db(handles.trgt_fft), 'm--', 'Linewidth', 1.05); hold on;
     set(trgt, 'tag', 'trgt');
-    inv_man = semilogx(handles.ah, fset(handles.inv_man_fft), db(handles.inv_man_fft), 'r','Linewidth', 1); hold on;
+    inv_man = semilogx(handles.ah, fset(handles.inv_man_fft, handles.fs), db(handles.inv_man_fft), 'r','Linewidth', 1); hold on;
     set(inv_man, 'tag', 'inv');
-    eq_man = semilogx(handles.ah, fset(handles.eq_man_fft), db(handles.eq_man_fft)-20, 'k', 'Linewidth', 1.1); hold on;
+    eq_man = semilogx(handles.ah, fset(handles.eq_man_fft, handles.fs), db(handles.eq_man_fft)-20, 'k', 'Linewidth', 1.1); hold on;
     set(eq_man, 'tag', 'eq');
     set(findobj('tag','inv'), 'Visible', handles.vsb_inv);
     set(findobj('tag','eq'), 'Visible', handles.vsb_eq);
 elseif handles.graphical_poles_radiobutton.Value
     hold off;
     yaxis = zeros(1, length(handles.fp))+ 3.5*(-40)/4;
-    semilogx(handles.ah,fset(handles.room_resp), db(handles.room_resp)); hold on;
+    semilogx(handles.ah,fset(handles.room_resp, handles.fs), db(handles.room_resp)); hold on;
     if length(handles.fp)>1
-        inv = semilogx(handles.ah,fset(handles.inv_graph_fft), db(handles.inv_graph_fft), 'r','Linewidth', 1); hold on;
+        inv = semilogx(handles.ah,fset(handles.inv_graph_fft, handles.fs), db(handles.inv_graph_fft), 'r','Linewidth', 1); hold on;
         set(inv, 'tag', 'inv');
-        eq = semilogx(handles.ah,fset(handles.eq_graph_fft), db(handles.eq_graph_fft)-20, 'k', 'Linewidth', 1.1); hold on;
+        eq = semilogx(handles.ah,fset(handles.eq_graph_fft, handles.fs), db(handles.eq_graph_fft)-20, 'k', 'Linewidth', 1.1); hold on;
         set(eq, 'tag', 'eq');
         set(findobj('tag','inv'), 'Visible', handles.vsb_inv);
         set(findobj('tag','eq'), 'Visible', handles.vsb_eq);
     end
-    trgt = semilogx(handles.ah, fset(handles.trgt_fft), db(handles.trgt_fft), 'm--', 'Linewidth', 1.05);
+    trgt = semilogx(handles.ah, fset(handles.trgt_fft, handles.fs), db(handles.trgt_fft), 'm--', 'Linewidth', 1.05);
     hold on;
     set(trgt, 'tag', 'trgt');
     % Plot poles even if fp=1
     plot(handles.ah,handles.fp, yaxis, 'ko', 'Linewidth', 1); hold off;
     axis tight; lims = axis;
-    handles.ah.XLim = [10 22050];
+    handles.ah.XLim = [10 handles.fs/2];
 %     handles.ah.YLim = [handles.min_db handles.max_db];
      handles.ah.YLim = [-40 lims(4)] ;
     xlabel('Frequency (Hz)', 'FontWeight', 'bold');
@@ -944,15 +944,15 @@ handles.imp = [];
 handles.target = [];
 handles.ctarget = [];
 % Table Data
-handles.tbl_data = [10 22050 20];
+handles.tbl_data = [10 handles.fs/2 20];
 %Check Boxes
 handles.val_inv = 1; handles.val_eq = 1;
 handles.vsb_inv = 'on'; handles.vsb_eq = 'on';
 
 %Update Graph_Axes
 hold off;
-semilogx(handles.graph_axes, fset(handles.room_resp), db(handles.room_resp));
-handles.graph_axes.XLim = [10 22050];
+semilogx(handles.graph_axes, fset(handles.room_resp, handles.fs), db(handles.room_resp));
+handles.graph_axes.XLim = [10 handles.fs/2];
 handles.graph_axes.YLim = [handles.min_db handles.max_db];
 xlabel('Frequency (Hz)', 'FontWeight', 'bold');
 ylabel('Magnitude (dB)', 'FontWeight', 'bold');
