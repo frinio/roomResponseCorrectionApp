@@ -2478,7 +2478,13 @@ else
     handles.anech_type = 'stereo';
     handles.anechoic = norm_stereo(handles.anechoic);
 end
-handles.player_anech = audioplayer(handles.anechoic, handles.fsa);
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.anechoic = resample(handles.anechoic, handles.fs, handles.fsa);
+end
+
+handles.player_anech = audioplayer(handles.anechoic, handles.fs);
 h = msgbox('Anechoic sound file is loaded.','Success');    
 
 guidata(hObject, handles);
@@ -2508,7 +2514,13 @@ if (filename ~= 0)
         % Normalize stereo
         handles.anechoic = norm_stereo(handles.anechoic);
     end
-    handles.player_anech = audioplayer(handles.anechoic, handles.fsa);
+    
+    % Resampling
+    if (handles.fsa ~= handles.fs)
+        handles.anechoic = resample(handles.anechoic, handles.fs, handles.fsa);
+    end
+
+    handles.player_anech = audioplayer(handles.anechoic, handles.fs);
 end
 
 guidata(hObject, handles);
@@ -2534,6 +2546,8 @@ function calc_reverb_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+
 if handles.mono
     reverbL = FFTconv(handles.anechoic(:,1), handles.room_ir);
     reverbR = FFTconv(handles.anechoic(:,2), handles.room_ir);
@@ -2543,6 +2557,11 @@ else
 end
 handles.reverb = [reverbL reverbR];
 handles.reverb = handles.reverb/max(abs(handles.reverb));
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.reverb = resample(handles.reverb, handles.fsa, handles.fs);
+end
 
 handles.player_reverb = audioplayer(handles.reverb, handles.fsa);
 guidata(hObject, handles);
@@ -2575,6 +2594,11 @@ end
 
 handles.eq = [eqL eqR];
 handles.eq = handles.eq/max(abs(handles.eq));
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.eq = resample(handles.eq, handles.fsa, handles.fs);
+end
 
 handles.player_eq = audioplayer(handles.eq, handles.fsa);
 guidata(hObject, handles);
