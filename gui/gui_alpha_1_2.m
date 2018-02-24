@@ -2471,11 +2471,20 @@ if size_anech(2) == 1
     handles.anech_type = 'mono';
     % Normalize mono
     handles.anechoic = handles.anechoic/max(abs(handles.anechoic));
+    % Convert mono to stereo
+    handles.anechoic = [handles.anechoic handles.anechoic];
 else
+    % Normalize stereo
     handles.anech_type = 'stereo';
     handles.anechoic = norm_stereo(handles.anechoic);
 end
-handles.player_anech = audioplayer(handles.anechoic, handles.fsa);
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.anechoic = resample(handles.anechoic, handles.fs, handles.fsa);
+end
+
+handles.player_anech = audioplayer(handles.anechoic, handles.fs);
 h = msgbox('Anechoic sound file is loaded.','Success');    
 
 guidata(hObject, handles);
@@ -2492,17 +2501,26 @@ if (filename ~= 0)
     [handles.anechoic, handles.fsa] = audioread(handles.anechoic_pathname);
     assignin('base', 'anechoic', handles.anechoic);
 
-    % Check for mono/stereo
+    % Check for mono/stereo sound
     size_anech = size(handles.anechoic);
     if size_anech(2) == 1
         handles.anech_type = 'mono';
         % Normalize mono
         handles.anechoic = handles.anechoic/max(abs(handles.anechoic));
+        % Convert mono to stereo
+        handles.anechoic = [handles.anechoic handles.anechoic];
     else
         handles.anech_type = 'stereo';
+        % Normalize stereo
         handles.anechoic = norm_stereo(handles.anechoic);
     end
-    handles.player_anech = audioplayer(handles.anechoic, handles.fsa);
+    
+    % Resampling
+    if (handles.fsa ~= handles.fs)
+        handles.anechoic = resample(handles.anechoic, handles.fs, handles.fsa);
+    end
+
+    handles.player_anech = audioplayer(handles.anechoic, handles.fs);
 end
 
 guidata(hObject, handles);
@@ -2527,20 +2545,24 @@ function calc_reverb_pushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to calc_reverb_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-switch handles.anech_type
-    case 'mono'
-        
-    case 'stereo'
-        if handles.mono
-            reverbL = FFTconv(handles.anechoic(:,1), handles.room_ir);
-            reverbR = FFTconv(handles.anechoic(:,2), handles.room_ir);
-        else
-            reverbL = FFTconv(handles.anechoic(:,1), handles.room_ir);
-            reverbR = FFTconv(handles.anechoic(:,2), handles.room_ir2);
-        end
-        handles.reverb = [reverbL reverbR];
-        handles.reverb = handles.reverb/max(abs(handles.reverb));
+
+
+
+if handles.mono
+    reverbL = FFTconv(handles.anechoic(:,1), handles.room_ir);
+    reverbR = FFTconv(handles.anechoic(:,2), handles.room_ir);
+else
+    reverbL = FFTconv(handles.anechoic(:,1), handles.room_ir);
+    reverbR = FFTconv(handles.anechoic(:,2), handles.room_ir2);
 end
+handles.reverb = [reverbL reverbR];
+handles.reverb = handles.reverb/max(abs(handles.reverb));
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.reverb = resample(handles.reverb, handles.fsa, handles.fs);
+end
+
 handles.player_reverb = audioplayer(handles.reverb, handles.fsa);
 guidata(hObject, handles);
 h = msgbox('Reverberant sound is ready','Success');
@@ -2561,21 +2583,23 @@ function calc_eq_pushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to calc_eq_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-switch handles.anech_type
-    case 'mono'
-        
-    case 'stereo'
-        if handles.mono
-            eqL = FFTconv(handles.anechoic(:,1), handles.corimp);
-            eqR = FFTconv(handles.anechoic(:,2), handles.corimp);
-        else
-            eqL = FFTconv(handles.anechoic(:,1), handles.corimpL);
-            eqR = FFTconv(handles.anechoic(:,2), handles.corimpR);
-        end
-        
-        handles.eq = [eqL eqR];
-        handles.eq = handles.eq/max(abs(handles.eq));
+
+if handles.mono
+    eqL = FFTconv(handles.anechoic(:,1), handles.corimp);
+    eqR = FFTconv(handles.anechoic(:,2), handles.corimp);
+else
+    eqL = FFTconv(handles.anechoic(:,1), handles.corimpL);
+    eqR = FFTconv(handles.anechoic(:,2), handles.corimpR);
 end
+
+handles.eq = [eqL eqR];
+handles.eq = handles.eq/max(abs(handles.eq));
+
+% Resampling
+if (handles.fsa ~= handles.fs)
+    handles.eq = resample(handles.eq, handles.fsa, handles.fs);
+end
+
 handles.player_eq = audioplayer(handles.eq, handles.fsa);
 guidata(hObject, handles);
 h = msgbox('Equalized sound is ready','Success');
