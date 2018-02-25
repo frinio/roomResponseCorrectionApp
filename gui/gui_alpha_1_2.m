@@ -156,33 +156,48 @@ function path_ir_edit_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of path_ir_edit as a double
 fullpath = hObject.String;
 if exist(fullpath, 'file')~=2, errordlg('Invalid filename or path.', 'File Error'); return; end;
+
 % If Path/Filename is valid
+handles.room_ir_pathname = fullpath;
 [handles.room_ir, handles.fs] = audioread(fullpath);
 
 % Check for mono/stereo
-size_ir = size(handles.room_ir);
-if size_ir(2) == 1
-    handles.room_ir_type = 'mono';
-    % Normalize mono
-    handles.room_ir = handles.room_ir/max(abs(handles.room_ir));
-else
-%     handles.room_ir_type = 'stereo';
-%     handles.room_ir = norm_stereo(handles.room_ir);
-      hObject.String = '';
-      errordlg('Please load a monophonic IR file.', 'File Error');
-      return;
-end
-
-handles.room_fresp = fft(handles.room_ir);
-handles.magn_or = abs(handles.room_fresp);
-handles.angle_or = angle(handles.room_fresp);
-handles.gd_or = groupdelay(handles.room_ir, handles.fs);
-
-% Assign and pass data through GUIs
-assignin('base', 'room_ir', handles.room_ir);
-assignin('base', 'fs_ir', handles.fs);
-setappdata(0, 'room_ir', handles.room_ir);
-setappdata(0, 'fs', handles.fs);
+    size_ir = size(handles.room_ir);
+    if size_ir(2) == 1
+        handles.mono = 1; handles.mono_checkbox.Value = 1;
+        handles.stereo = 0; handles.stereo_checkbox.Value = 0;
+        handles.left_togglebutton.Enable = 'off';
+        handles.left_togglebutton.Value = 0;
+        handles.right_togglebutton.Enable = 'off';
+        handles.right_togglebutton.Value = 0;
+        
+        % Normalize mono
+        handles.room_ir = handles.room_ir/max(abs(handles.room_ir));
+    else
+          errordlg('Please load a monophonic IR file.', 'File Error');
+          return;
+    end
+    set(handles.path_ir_edit, 'String', handles.room_ir_pathname);
+    
+    %%% Responses %%%
+    handles.room_fresp = fft(handles.room_ir);
+    handles.magn_or = abs(handles.room_fresp);
+    handles.angle_or = angle(handles.room_fresp);
+    handles.gd_or = groupdelay(handles.room_ir, handles.fs);
+    
+    %%% Statistics %%%
+    N = length(handles.magn_or);
+    handles.magn_or_dbfs = db(handles.magn_or/max(abs(handles.magn_or)));
+    [handles.mean_or, ~]=mean_oct(handles.magn_or_dbfs,3,N);
+    [handles.std_or, handles.cntr_freq] = std_oct(handles.magn_or_dbfs,3,N);  
+    [handles.flatness_or, ~] = flatness(handles.magn_or,3,N);
+    
+    % Assign and pass data through GUIs
+    assignin('base', 'room_ir', handles.room_ir);
+    assignin('base', 'fs_ir', handles.fs);
+    setappdata(0, 'room_ir', handles.room_ir);
+    setappdata(0, 'fs', handles.fs);
+    setappdata(0, 'path_ir', handles.room_ir_pathname);
 
 h = msgbox('IR file is loaded.','Success');    
 guidata(hObject, handles);
@@ -210,16 +225,17 @@ if (filename ~= 0)
         % Normalize mono
         handles.room_ir = handles.room_ir/max(abs(handles.room_ir));
     else
-%         handles.room_ir = norm_stereo(handles.room_ir);
           errordlg('Please load a monophonic IR file.', 'File Error');
           return;
     end
     set(handles.path_ir_edit, 'String', handles.room_ir_pathname);
+    
     %%% Responses %%%
     handles.room_fresp = fft(handles.room_ir);
     handles.magn_or = abs(handles.room_fresp);
     handles.angle_or = angle(handles.room_fresp);
     handles.gd_or = groupdelay(handles.room_ir, handles.fs);
+    
     %%% Statistics %%%
     N = length(handles.magn_or);
     handles.magn_or_dbfs = db(handles.magn_or/max(abs(handles.magn_or)));

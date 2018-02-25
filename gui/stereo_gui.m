@@ -117,6 +117,48 @@ function path_ir2_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of path_ir2_edit as text
 %        str2double(get(hObject,'String')) returns contents of path_ir2_edit as a double
+fullpath = hObject.String;
+if exist(fullpath, 'file')~=2, errordlg('Invalid filename or path.', 'File Error'); return; end;
+
+% If Path/Filename is valid
+handles.path_ir2 = fullpath;
+[handles.room_ir2, handles.fs2] = audioread(handles.path_ir2);
+
+ % Check for mono/stereo
+size_ir = size(handles.room_ir2);
+if size_ir(2) == 1
+    % Normalize mono
+    handles.room_ir2 = handles.room_ir2/max(abs(handles.room_ir2));
+else
+      errordlg('Please load a monophonic IR file.', 'File Error');
+      return;
+end
+set(handles.path_ir2_edit, 'String', handles.path_ir2);
+%%% Responses %%%
+handles.room_fresp2 = fft(handles.room_ir2);
+handles.magn2_or = abs(handles.room_fresp2);
+handles.angle2_or = angle(handles.room_fresp2);
+handles.gd2_or = groupdelay(handles.room_ir2, handles.fs2);
+%%% Statistics %%%
+N2 = length(handles.magn2_or);
+handles.magn2_or_dbfs = db(handles.magn2_or/max(abs(handles.magn2_or)));
+[handles.mean2_or, ~]=mean_oct(handles.magn2_or_dbfs,3,N2);
+[handles.std2_or, handles.cntr_freq2] = std_oct(handles.magn2_or_dbfs,3,N2);  
+[handles.flatness2_or, ~] = flatness(handles.magn2_or,3,N2);
+
+% Assign and pass data through GUIs
+assignin('base', 'room_ir2', handles.room_ir2);
+assignin('base', 'fs_ir2', handles.fs2);
+
+% Right IR
+[path, name, ext] = fileparts(handles.path_ir2);
+handles.right_channel_edit.String = [name ext];
+
+handles.save_flag = 1;
+
+h = msgbox('IR file is loaded.','Success');  
+guidata(hObject, handles);
+
 
 
 function browse_ir2_pushbutton_Callback(hObject, eventdata, handles)
@@ -160,7 +202,6 @@ if (filename ~= 0)
 
     handles.save_flag = 1;
 end
-
 
 guidata(hObject, handles);
 
